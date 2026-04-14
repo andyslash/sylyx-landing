@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sylyx — The complete writing studio</title>
+  <meta name="description" content="Structure your manuscript, track your progress, and write alongside AI — all from files that live on your machine, forever. Open source, local-first writing studio for novelists.">
+  <meta property="og:title" content="Sylyx — The complete writing studio">
+  <meta property="og:description" content="Structure your manuscript, track your progress, and write alongside AI — all from files that live on your machine, forever.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'><rect width='34' height='34' rx='8' fill='%23F5B829'/><rect x='8' y='11' width='18' height='2.4' rx='1.2' fill='white'/><rect x='8' y='16' width='14' height='2.4' rx='1.2' fill='white'/><rect x='8' y='21' width='10' height='2.4' rx='1.2' fill='white'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --bg:        #D9D3C7;
+      --bg-light:  #E4DED4;
+      --bg-dark:   #C8C2B5;
+      --accent:    #C96514;
+      --yellow:    #F5B829;
+      --text:      #1A1714;
+      --text-mid:  #5C5650;
+      --text-muted:#8C8680;
+      --line:      rgba(26,23,20,0.14);
+      --white:     #FFFFFF;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 48px;
+      position: sticky;
+      top: 0;
+      background: rgba(217,211,199,0.9);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      font-size: 16px;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 15px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .btn-outline:hover { background: rgba(26,23,20,0.06); border-color: rgba(26,23,20,0.3); }
+
+    /* ─── HERO ─── */
+    .hero {
+      padding: 72px 48px 0;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 48px;
+      align-items: flex-end;
+    }
+
+    .hero-left { padding-bottom: 40px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--yellow); }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(46px, 5.5vw, 80px);
+      line-height: 1.0;
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 22px;
+    }
+    h1 em { font-style: italic; color: var(--accent); }
+
+    .hero-sub {
+      font-size: 16px;
+      color: var(--text-mid);
+      line-height: 1.72;
+      max-width: 400px;
+      margin-bottom: 36px;
+    }
+
+    /* ─── WAITLIST FORM ─── */
+    .wl-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 340px;
+    }
+
+    .wl-input {
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid rgba(26,23,20,0.32);
+      padding: 10px 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    .wl-input:focus { border-bottom-color: var(--text); }
+    .wl-input::placeholder { color: var(--text-muted); }
+
+    .wl-btn {
+      align-self: flex-start;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 11px 22px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      transition: background 0.18s, gap 0.18s;
+      letter-spacing: 0.01em;
+    }
+    .wl-btn:hover { background: #a85110; gap: 13px; }
+
+    /* Inline strip variant */
+    .wl-form-inline {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+    }
+    .wl-form-inline .wl-input {
+      max-width: 220px;
+    }
+    .wl-form-inline .wl-btn {
+      flex-shrink: 0;
+      margin-bottom: 1px;
+    }
+
+    .btn-primary {
+      padding: 9px 18px;
+      background: var(--accent);
+      color: white; border: none;
+      border-radius: 5px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px; font-weight: 500;
+      cursor: pointer;
+      transition: background 0.18s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { background: #a85110; }
+
+    .hero-visual {
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* fade bottom of hero window into background */
+    .hero-visual::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 80px;
+      background: linear-gradient(to bottom, transparent, var(--bg));
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    hr.rule { border: none; border-top: 1px solid var(--line); }
+
+    /* ─── EMAIL STRIP ─── */
+    .email-strip {
+      padding: 72px 48px;
+      text-align: center;
+      border-bottom: 1px solid var(--line);
+    }
+    .email-strip h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(22px, 2.8vw, 34px);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .email-strip p { font-size: 14px; color: var(--text-muted); margin-bottom: 28px; }
+    .email-strip .wl-form {
+      max-width: 300px;
+      margin: 0 auto;
+      align-items: center;
+    }
+    .email-strip .wl-btn { align-self: center; }
+
+    /* ─── STATEMENT ─── */
+    .statement {
+      padding: 88px 48px;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+    .statement p {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(24px, 3.2vw, 42px);
+      line-height: 1.42;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .statement p .fade { color: var(--text-muted); }
+
+    /* ─── FEATURE SPLIT ─── */
+    .feature-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid var(--line);
+    }
+    .feature-split.rev { direction: rtl; }
+    .feature-split.rev > * { direction: ltr; }
+
+    .split-text {
+      padding: 64px 48px;
+    }
+
+    .split-visual {
+      background: var(--bg-dark);
+      border-left: 1px solid var(--line);
+      padding: 40px 36px 0;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      position: relative;
+    }
+    .feature-split.rev .split-visual {
+      border-left: none;
+      border-right: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .split-h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 3.2vw, 44px);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      margin-bottom: 16px;
+    }
+
+    .split-desc {
+      font-size: 15px;
+      color: var(--text-mid);
+      line-height: 1.72;
+      margin-bottom: 32px;
+      max-width: 360px;
+    }
+
+    /* Accordion */
+    .details-label {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 500;
+      padding-bottom: 2px;
+    }
+
+    .detail-item {
+      border-top: 1px solid var(--line);
+      padding: 13px 0;
+      cursor: pointer;
+    }
+    .detail-item:last-child { border-bottom: 1px solid var(--line); }
+
+    .detail-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .detail-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .di-icon { width: 14px; height: 14px; flex-shrink: 0; }
+    .di-icon svg { width: 14px; height: 14px; stroke: var(--text-mid); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+    .detail-toggle { font-size: 18px; color: var(--text-muted); font-weight: 300; transition: transform 0.2s; line-height: 1; }
+    .detail-item.open .detail-toggle { transform: rotate(45deg); }
+
+    .detail-body {
+      font-size: 13px;
+      color: var(--text-mid);
+      line-height: 1.65;
+      margin-top: 8px;
+      max-width: 340px;
+      display: none;
+    }
+    .detail-item.open .detail-body { display: block; }
+
+    /* ─── APP WINDOW BASE ─── */
+    .aw {
+      background: #F6F2EA;
+      border-radius: 12px 12px 0 0;
+      overflow: hidden;
+      box-shadow: 0 -4px 48px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.05);
+      width: 100%;
+    }
+
+    .aw-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: #FDFAF6;
+      border-bottom: 1px solid #E8E2D5;
+      flex-shrink: 0;
+    }
+    .aw-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+    .aw-r { background: #FF6057; }
+    .aw-y { background: #FFBD2E; }
+    .aw-g { background: #28C941; }
+
+    .aw-bar-title {
+      margin-left: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #7A7268;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ─── APP SIDEBAR ─── */
+    .aw-layout {
+      display: flex;
+      height: 380px;
+    }
+
+    .aw-sb {
+      width: 185px;
+      flex-shrink: 0;
+      background: #EDE8DF;
+      border-right: 1px solid #E0D9CE;
+      padding: 14px 10px;
+      overflow: hidden;
+    }
+
+    .aw-sb-label {
+      font-size: 10.5px;
+      color: #A89E96;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      font-weight: 600;
+      padding: 5px 8px 3px;
+    }
+
+    .aw-sb-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 5px;
+      font-size: 12.5px;
+      color: #7A7268;
+      margin-bottom: 1px;
+    }
+    .aw-sb-item.on { background: #FAF7F2; color: #1A1714; font-weight: 500; }
+    .aw-sb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--yellow); flex-shrink: 0; }
+
+    .aw-sb-goal {
+      padding: 8px 8px 0;
+      margin-top: 10px;
+    }
+    .aw-sb-goal-lbl { font-size: 10.5px; color: #A89E96; margin-bottom: 4px; }
+    .aw-progress-bar { height: 3px; background: #D8D2C8; border-radius: 2px; overflow: hidden; }
+    .aw-progress-fill { height: 100%; border-radius: 2px; background: var(--yellow); }
+    .aw-sb-goal-count { font-size: 10.5px; color: #A89E96; margin-top: 3px; }
+
+    /* ─── KANBAN ─── */
+    .aw-kanban { flex: 1; padding: 20px 22px; overflow: hidden; }
+
+    .aw-k-section { margin-bottom: 18px; }
+
+    .aw-k-hd {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #A89E96;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 11px;
+    }
+    .aw-k-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    .aw-cards-row { display: flex; gap: 10px; }
+
+    .aw-card {
+      background: white;
+      border: 1px solid #E8E2D5;
+      border-radius: 9px;
+      padding: 12px 13px;
+      flex: 1;
+      min-width: 0;
+    }
+    .aw-card-title { font-size: 12.5px; font-weight: 600; color: #1A1714; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .aw-card-line { height: 7px; background: #EDE8DE; border-radius: 3px; margin-bottom: 5px; }
+    .aw-card-tags { display: flex; gap: 4px; margin-top: 9px; flex-wrap: wrap; }
+    .aw-tag { font-size: 11px; background: #EDE8DE; color: #78716C; padding: 2px 7px; border-radius: 3px; }
+    .aw-ghost { border: 1px dashed #D0C9BF; border-radius: 9px; flex: 0 0 80px; display: flex; align-items: center; justify-content: center; color: #C4B9AE; font-size: 18px; }
+
+    /* ─── DRAG MOCKUP ─── */
+    .aw-drag-card {
+      background: white;
+      border: 1px solid #E8E2D5;
+      border-radius: 9px;
+      padding: 12px 13px;
+      flex: 1;
+      transform: rotate(-2deg) translateY(-6px);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.16);
+      position: relative;
+      z-index: 3;
+      cursor: grabbing;
+    }
+
+    .aw-drop-zone {
+      border: 1.5px dashed var(--accent);
+      border-radius: 9px;
+      flex: 1;
+      min-height: 80px;
+      background: rgba(201,101,20,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11.5px;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .aw-placeholder {
+      border: 1.5px dashed #D0C9BF;
+      border-radius: 9px;
+      flex: 1;
+      min-height: 80px;
+      background: rgba(208,201,191,0.15);
+      opacity: 0.6;
+    }
+
+    /* ─── EDITOR ─── */
+    .aw-editor-area {
+      flex: 1;
+      padding: 26px 32px;
+      overflow: hidden;
+    }
+
+    .aw-editor-serif {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: #1A1714;
+      margin-bottom: 18px;
+      letter-spacing: -0.01em;
+    }
+
+    .aw-editor-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 14px;
+      background: #FDFAF6;
+      border-bottom: 1px solid #E8E2D5;
+    }
+    .aw-toolbar-btn {
+      width: 26px; height: 26px;
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; color: #7A7268;
+      cursor: default;
+    }
+    .aw-toolbar-btn:hover { background: #EDE8DF; }
+    .aw-toolbar-sep { width: 1px; height: 16px; background: #E0D9CE; margin: 0 3px; }
+    .aw-toolbar-ai {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 4px;
+      background: rgba(245,184,41,0.15);
+      border: 1px solid rgba(245,184,41,0.4);
+      border-radius: 5px;
+      padding: 3px 9px;
+      font-size: 11px; font-weight: 500; color: #8A6010;
+      cursor: default;
+    }
+
+    .aw-text-line { height: 11px; background: #EDE8DE; border-radius: 3px; margin-bottom: 9px; }
+
+    /* ─── BOOK PLAN PANEL ─── */
+    .aw-book-plan {
+      width: 200px;
+      flex-shrink: 0;
+      background: #F9F5EF;
+      border-left: 1px solid #E0D9CE;
+      padding: 16px 14px;
+      overflow: hidden;
+    }
+    .aw-bp-title { font-size: 13px; font-weight: 600; color: #1A1714; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .aw-bp-close { font-size: 14px; color: #A89E96; cursor: default; }
+    .aw-bp-project { background: rgba(201,101,20,0.12); border-radius: 6px; padding: 9px 11px; margin-bottom: 10px; }
+    .aw-bp-project-name { font-size: 12px; font-weight: 600; color: #1A1714; margin-bottom: 4px; }
+    .aw-bp-count { font-size: 11px; color: #7A7268; margin-bottom: 6px; }
+    .aw-bp-bar { height: 3px; background: #D8D2C8; border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
+    .aw-bp-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+    .aw-bp-note { font-size: 10px; color: var(--accent); }
+    .aw-bp-chapter { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-top: 1px solid #E0D9CE; }
+    .aw-bp-ch-name { font-size: 12px; color: #1A1714; }
+    .aw-bp-ch-count { font-size: 11px; color: #A89E96; }
+
+    /* ─── AI PANEL ─── */
+    .aw-ai {
+      width: 200px;
+      flex-shrink: 0;
+      background: #F9F5EF;
+      border-left: 1px solid #E0D9CE;
+      padding: 14px 13px;
+      overflow: hidden;
+    }
+    .aw-ai-hd { font-size: 13px; font-weight: 600; color: #1A1714; margin-bottom: 11px; display: flex; align-items: center; gap: 5px; }
+    .aw-ai-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+    .aw-ai-chip { font-size: 11px; background: #EDE8DE; color: #7A7268; padding: 3px 9px; border-radius: 4px; cursor: default; }
+    .aw-ai-chip.on { background: var(--yellow); color: #1A1714; font-weight: 500; }
+    .aw-ai-msg {
+      background: white;
+      border: 1px solid #E0D9CE;
+      border-radius: 7px;
+      padding: 10px 11px;
+      font-size: 11.5px;
+      color: #5C5650;
+      line-height: 1.55;
+      margin-bottom: 8px;
+    }
+    .aw-ai-msg.dark { background: #1A1714; color: #F5F2EC; border-color: #1A1714; }
+    .aw-ai-input {
+      margin-top: 10px;
+      background: white;
+      border: 1px solid #E0D9CE;
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 11.5px;
+      color: #A89E96;
+    }
+
+    /* ─── RESOURCES ─── */
+    .aw-resources { flex: 1; padding: 18px 20px; overflow: hidden; }
+    .aw-res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .aw-res-card {
+      background: white;
+      border: 1px solid #E8E2D5;
+      border-radius: 9px;
+      padding: 12px 13px;
+    }
+    .aw-res-type { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+    .aw-res-title { font-size: 12px; font-weight: 600; color: #1A1714; line-height: 1.35; margin-bottom: 7px; }
+    .aw-res-desc { font-size: 11px; color: #7A7268; line-height: 1.5; }
+    .aw-res-link { font-size: 10.5px; color: #5B7EC9; margin-bottom: 5px; }
+
+    /* ─── STAMP ─── */
+    .stamp {
+      position: absolute;
+      top: 28px; right: 36px;
+      width: 84px; height: 84px;
+      border-radius: 50%;
+      border: 1.5px dashed var(--text-mid);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 4;
+    }
+    .stamp p {
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      text-align: center;
+      line-height: 1.5;
+      padding: 12px;
+    }
+
+    /* ─── PHILOSOPHY ─── */
+    .philosophy {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 80px 48px;
+      text-align: center;
+    }
+    .philosophy blockquote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(20px, 2.8vw, 34px);
+      line-height: 1.5;
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: -0.02em;
+      max-width: 660px;
+      margin: 0 auto 14px;
+    }
+    .philosophy cite {
+      font-size: 12px;
+      font-style: normal;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ─── BOTTOM CTA ─── */
+    .bottom-cta {
+      padding: 88px 48px;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    .cta-left h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(30px, 3.8vw, 50px);
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      margin-bottom: 14px;
+    }
+    .cta-left h2 em { font-style: italic; color: var(--accent); }
+    .cta-left p { font-size: 14.5px; color: var(--text-mid); line-height: 1.7; max-width: 360px; }
+    .cta-right { display: flex; flex-direction: column; gap: 12px; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 22px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-left { display: flex; align-items: center; gap: 9px; }
+    .footer-text { font-size: 12px; color: var(--text-muted); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 12px; color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+    .footer-links a:hover { color: var(--text); }
+
+    /* ─── LOGO SVG ─── */
+    .sylyx-logo { display: block; }
+
+    @media (max-width: 860px) {
+      nav, footer { padding-left: 24px; padding-right: 24px; }
+      .hero { padding: 48px 24px 0; }
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+      .email-strip, .statement, .philosophy, .bottom-cta { padding-left: 24px; padding-right: 24px; }
+      .feature-split { grid-template-columns: 1fr; }
+      .feature-split.rev { direction: ltr; }
+      .split-visual { display: none; }
+      .bottom-cta { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <a href="#" class="logo">
+    <svg class="sylyx-logo" width="30" height="30" viewBox="0 0 34 34" fill="none">
+      <rect width="34" height="34" rx="8" fill="#F5B829"/>
+      <rect x="8" y="11" width="18" height="2.4" rx="1.2" fill="white"/>
+      <rect x="8" y="16" width="14" height="2.4" rx="1.2" fill="white"/>
+      <rect x="8" y="21" width="10" height="2.4" rx="1.2" fill="white"/>
+    </svg>
+    Sylyx
+  </a>
+  <a href="https://github.com/andyslash/sylyx-desktop" target="_blank" class="btn-outline">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+    Star on GitHub
+  </a>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="badge"><span class="badge-dot"></span>Open source &nbsp;·&nbsp; Coming soon</div>
+      <h1>The complete<br>writing <em>studio.</em></h1>
+      <p class="hero-sub">Structure your manuscript, track your progress, and write alongside AI — all from files that live on your machine, forever.</p>
+      <form class="wl-form" onsubmit="handleSubmit(event)">
+        <input type="email" class="wl-input" placeholder="your@email.com" required>
+        <button type="submit" class="wl-btn">Join the waitlist <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      </form>
+      <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">No spam. Just a heads-up when we ship.</p>
+    </div>
+
+    <!-- HERO VISUAL: Full kanban board -->
+    <div class="hero-visual">
+      <div class="aw">
+        <div class="aw-bar">
+          <span class="aw-dot aw-r"></span><span class="aw-dot aw-y"></span><span class="aw-dot aw-g"></span>
+          <span class="aw-bar-title">
+            <svg width="13" height="13" viewBox="0 0 34 34" fill="none" style="border-radius:3px;"><rect width="34" height="34" rx="6" fill="#F5B829"/><rect x="7" y="10" width="20" height="2.5" rx="1.25" fill="white"/><rect x="7" y="15.75" width="15" height="2.5" rx="1.25" fill="white"/><rect x="7" y="21.5" width="11" height="2.5" rx="1.25" fill="white"/></svg>
+            Mon Roman &nbsp;—&nbsp; 8 docs
+          </span>
+        </div>
+        <div class="aw-layout">
+          <div class="aw-sb">
+            <div class="aw-sb-label">Sylyx</div>
+            <div class="aw-sb-item">Récents</div>
+            <div class="aw-sb-item">Note rapide</div>
+            <div class="aw-sb-item">Ressources</div>
+            <div class="aw-sb-label" style="margin-top:10px;">Espaces</div>
+            <div class="aw-sb-item on"><span class="aw-sb-dot"></span>Mon Roman</div>
+            <div style="padding-left:18px;">
+              <div class="aw-sb-item" style="font-size:11.5px;">Le village d'Écume</div>
+              <div class="aw-sb-item" style="font-size:11.5px;">Recherches</div>
+              <div class="aw-sb-item" style="font-size:11.5px;">Épilogue</div>
+              <div class="aw-sb-item" style="font-size:11.5px;">L'ombre du phare</div>
+              <div class="aw-sb-item" style="font-size:11.5px;">Personnages</div>
+            </div>
+            <div class="aw-sb-goal">
+              <div class="aw-sb-goal-lbl">Objectif du jour</div>
+              <div class="aw-progress-bar"><div class="aw-progress-fill" style="width:0%;"></div></div>
+              <div class="aw-sb-goal-count">0 / 1000 mots</div>
+            </div>
+          </div>
+          <div class="aw-kanban">
+            <div class="aw-k-section">
+              <div class="aw-k-hd"><span class="aw-k-dot" style="background:#F5C542;"></span>Idées · 3</div>
+              <div class="aw-cards-row">
+                <div class="aw-card">
+                  <div class="aw-card-title">Structure narrative</div>
+                  <div class="aw-card-line" style="width:88%;"></div>
+                  <div class="aw-card-line" style="width:70%;"></div>
+                  <div class="aw-card-tags"><span class="aw-tag">Structure</span></div>
+                </div>
+                <div class="aw-card">
+                  <div class="aw-card-title">Personnages — Notes</div>
+                  <div class="aw-card-line" style="width:82%;"></div>
+                  <div class="aw-card-line" style="width:65%;"></div>
+                  <div class="aw-card-tags"><span class="aw-tag">Personnages</span></div>
+                </div>
+                <div class="aw-ghost">+</div>
+              </div>
+            </div>
+            <div class="aw-k-section">
+              <div class="aw-k-hd"><span class="aw-k-dot" style="background:#5B7EC9;"></span>Recherche · 1</div>
+              <div class="aw-cards-row">
+                <div class="aw-card">
+                  <div class="aw-card-title">Le village d'Écume</div>
+                  <div class="aw-card-line" style="width:90%;"></div>
+                  <div class="aw-card-line" style="width:72%;"></div>
+                  <div class="aw-card-tags"><span class="aw-tag">Roman</span><span class="aw-tag">Ch.2</span></div>
+                </div>
+                <div class="aw-ghost">+</div>
+              </div>
+            </div>
+            <div class="aw-k-section">
+              <div class="aw-k-hd"><span class="aw-k-dot" style="background:#C96514;"></span>Brouillons · 2</div>
+              <div class="aw-cards-row">
+                <div class="aw-card">
+                  <div class="aw-card-title">L'ombre du phare</div>
+                  <div class="aw-card-line" style="width:85%;"></div>
+                  <div class="aw-card-line" style="width:66%;"></div>
+                  <div class="aw-card-tags"><span class="aw-tag">Roman</span><span class="aw-tag">Ch.1</span></div>
+                </div>
+                <div class="aw-card">
+                  <div class="aw-card-title">Recherches — Phares</div>
+                  <div class="aw-card-line" style="width:80%;"></div>
+                  <div class="aw-card-tags"><span class="aw-tag">Recherche</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" style="margin: 0 48px;">
+
+<!-- ═══ EMAIL STRIP ═══ -->
+<div class="email-strip">
+  <h2>Be the first to write with it.</h2>
+  <p>We'll reach out when Sylyx is ready to ship.</p>
+  <form class="wl-form" onsubmit="handleSubmit(event)">
+    <input type="email" class="wl-input" placeholder="your@email.com" required>
+    <button type="submit" class="wl-btn">Join the waitlist <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+  </form>
+</div>
+
+<!-- ═══ STATEMENT ═══ -->
+<section class="statement">
+  <p>
+    Sylyx brings your chapters, notes, research, and AI together into one studio built for novelists.
+    <span class="fade">Structure your story the way you think — then just write.</span>
+  </p>
+</section>
+
+<!-- ═══ FEATURE 1: ORGANIZE — Drag & drop kanban ═══ -->
+<div class="feature-split">
+  <div class="split-text">
+    <div class="eyebrow">Organize</div>
+    <h2 class="split-h2">A workflow built<br>for writers.</h2>
+    <p class="split-desc">Move your documents through Ideas, Research, Drafts, and Revision. See exactly where every scene, chapter, and note stands in your process.</p>
+
+    <div class="details-label">Details</div>
+    <div class="detail-item open" onclick="toggleDetail(this)">
+      <div class="detail-hd">
+        <div class="detail-title">
+          <span class="di-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="18" rx="1.5"/><rect x="14" y="3" width="7" height="11" rx="1.5"/></svg></span>
+          Project workspaces
+        </div>
+        <span class="detail-toggle">×</span>
+      </div>
+      <div class="detail-body">Organize your novel into list, grid, or board views. Create stages that match your writing process — Idées, Brouillons, Révision.</div>
+    </div>
+    <div class="detail-item" onclick="toggleDetail(this)">
+      <div class="detail-hd">
+        <div class="detail-title">
+          <span class="di-icon"><svg viewBox="0 0 24 24"><path d="M5 9l4 4 10-10M5 20h14"/></svg></span>
+          Drag &amp; drop
+        </div>
+        <span class="detail-toggle">+</span>
+      </div>
+      <div class="detail-body">Move documents between stages by dragging and dropping. Reorganize your manuscript flow in seconds.</div>
+    </div>
+    <div class="detail-item" onclick="toggleDetail(this)">
+      <div class="detail-hd">
+        <div class="detail-title">
+          <span class="di-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
+          Daily writing goals
+        </div>
+        <span class="detail-toggle">+</span>
+      </div>
+      <div class="detail-body">Set a daily word target and track your progress. Stay consistent — and finish the manuscript you started.</div>
+    </div>
+  </div>
+
+  <!-- VISUAL: Drag & drop in action -->
+  <div class="split-visual">
+    <div class="aw">
+      <div class="aw-bar">
+        <span class="aw-dot aw-r"></span><span class="aw-dot aw-y"></span><span class="aw-dot aw-g"></span>
+        <span class="aw-bar-title">Mon Roman — Board</span>
+      </div>
+      <div class="aw-layout">
+        <div class="aw-sb">
+          <div class="aw-sb-label">Espaces</div>
+          <div class="aw-sb-item on"><span class="aw-sb-dot"></span>Mon Roman</div>
+          <div style="padding-left:14px; margin-top:4px;">
+            <div class="aw-sb-item" style="font-size:12px;">Le village d'Écume</div>
+            <div class="aw-sb-item" style="font-size:12px;">Recherches</div>
+            <div class="aw-sb-item on" style="font-size:12px;">L'ombre du phare</div>
+            <div class="aw-sb-item" style="font-size:12px;">Personnages</div>
+            <div class="aw-sb-item" style="font-size:12px;">Dialogue — M. &amp; K.</div>
+          </div>
+          <div class="aw-sb-goal" style="margin-top:14px;">
+            <div class="aw-sb-goal-lbl">Objectif du jour</div>
+            <div class="aw-progress-bar"><div class="aw-progress-fill" style="width:55%;"></div></div>
+            <div class="aw-sb-goal-count">550 / 1000 mots</div>
+          </div>
+        </div>
+        <div class="aw-kanban">
+          <!-- Brouillons with dragged card -->
+          <div class="aw-k-section">
+            <div class="aw-k-hd"><span class="aw-k-dot" style="background:#C96514;"></span>Brouillons · 2</div>
+            <div class="aw-cards-row" style="align-items:flex-start;">
+              <div class="aw-card">
+                <div class="aw-card-title">Recherches — Phares</div>
+                <div class="aw-card-line" style="width:80%;"></div>
+                <div class="aw-card-line" style="width:62%;"></div>
+                <div class="aw-card-tags"><span class="aw-tag">Recherche</span></div>
+              </div>
+              <!-- Placeholder where dragged card was -->
+              <div class="aw-placeholder"></div>
+            </div>
+          </div>
+
+          <!-- Révision with drop zone + dragged card flying in -->
+          <div class="aw-k-section">
+            <div class="aw-k-hd"><span class="aw-k-dot" style="background:#7C9E6E;"></span>Révision · 1</div>
+            <div class="aw-cards-row" style="align-items:flex-start;">
+              <div class="aw-card">
+                <div class="aw-card-title">Dialogue — M. &amp; K.</div>
+                <div class="aw-card-line" style="width:82%;"></div>
+                <div class="aw-card-line" style="width:60%;"></div>
+                <div class="aw-card-tags"><span class="aw-tag">Roman</span></div>
+              </div>
+              <!-- Drop zone target -->
+              <div class="aw-drop-zone">Drop here</div>
+            </div>
+          </div>
+
+          <!-- Dragged card floating -->
+          <div style="padding: 0 0 0 0; margin-top: -10px; display:flex;">
+            <div class="aw-drag-card" style="max-width:160px;">
+              <div class="aw-card-title">L'ombre du phare</div>
+              <div class="aw-card-line" style="width:85%;"></div>
+              <div class="aw-card-line" style="width:65%;"></div>
+              <div class="aw-card-tags"><span class="aw-tag">Roman</span><span class="aw-tag">Ch.1</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FEATURE 2: WRITE — Editor + AI ═══ -->
+<div class="feature-split rev">
+  <div class="split-text">
+    <div class="eyebrow">Write</div>
+    <h2 class="split-h2">Your always-on<br>AI collaborator.</h2>
+    <p class="split-desc">Sylyx IA knows your manuscript. Ask it to write a synopsis, craft a pitch for your editor, draft your back cover — or simply help you get unstuck.</p>
+
+    <div class="details-label">Details</div>
+    <div class="detail-item open" onclick="toggleDetail(this)">
+      <div class="detail-hd">
+        <div class="detail-title">
+          <span class="di-icon"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></span>
+          Document &amp; project chat
+        </div>
+        <span class="detail-toggle">×</span>
+      </div>
+      <div class="detail-body">Generate a synopsis, a pitch for your editor, a résumé, or your 4th cover text — Sylyx IA reads your whole manuscript to help.</div>
+    </div>
+    <div class="detail-item" onclick="toggleDetail(this)">
+      <div class="detail-hd">
+        <div class="detail-title">
+          <span class="di-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+          Inline editing
+        </div>
+        <span class="detail-toggle">+</span>
+      </div>
+      <div class="detail-body">From grammar corrections to style enhancements — AI polishes your prose without breaking your flow.</div>
+    </div>
+    <div class="detail-item" onclick="toggleDetail(this)">
+      <div class="detail-hd">
+        <div class="detail-title">
+          <span class="di-icon"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></span>
+          Ma voix
+        </div>
+        <span class="detail-toggle">+</span>
+      </div>
+      <div class="detail-body">Train Sylyx IA on your writing style. Every suggestion sounds like you — not a generic AI.</div>
+    </div>
+  </div>
+
+  <!-- VISUAL: Editor + AI panel (from screenshot 6) -->
+  <div class="split-visual" style="position:relative;">
+    <div class="stamp"><p>We never use your data to train AI</p></div>
+    <div class="aw">
+      <div class="aw-bar">
+        <span class="aw-dot aw-r"></span><span class="aw-dot aw-y"></span><span class="aw-dot aw-g"></span>
+        <span class="aw-bar-title">Le village d'Écume &nbsp;·&nbsp; Roman &nbsp;·&nbsp; Ch.2</span>
+      </div>
+      <!-- Toolbar -->
+      <div class="aw-editor-toolbar">
+        <div class="aw-toolbar-btn" style="font-weight:700;">B</div>
+        <div class="aw-toolbar-btn" style="font-style:italic;">I</div>
+        <div class="aw-toolbar-btn">H₁</div>
+        <div class="aw-toolbar-btn">H₂</div>
+        <div class="aw-toolbar-sep"></div>
+        <div class="aw-toolbar-btn">"</div>
+        <div class="aw-toolbar-btn">≡</div>
+        <div class="aw-toolbar-sep"></div>
+        <div class="aw-toolbar-ai">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>
+          IA
+        </div>
+      </div>
+      <div class="aw-layout" style="height:340px;">
+        <div class="aw-sb" style="width:150px;">
+          <div class="aw-sb-label">Espaces</div>
+          <div class="aw-sb-item on"><span class="aw-sb-dot"></span>Mon Roman</div>
+          <div style="padding-left:12px;">
+            <div class="aw-sb-item on" style="font-size:12px;">Le village d'Écume</div>
+            <div class="aw-sb-item" style="font-size:12px;">Recherches</div>
+            <div class="aw-sb-item" style="font-size:12px;">Épilogue</div>
+            <div class="aw-sb-item" style="font-size:12px;">L'ombre du phare</div>
+            <div class="aw-sb-item" style="font-size:12px;">Personnages</div>
+          </div>
+        </div>
+        <div class="aw-editor-area" style="padding: 20px 22px;">
+          <div class="aw-editor-serif">Le village d'Écume</div>
+          <div class="aw-editor-serif" style="font-size:15px; margin-bottom:14px;">Le village d'Écume</div>
+          <div class="aw-text-line" style="width:94%;"></div>
+          <div class="aw-text-line" style="width:88%;"></div>
+          <div class="aw-text-line" style="width:80%;"></div>
+          <div style="height:10px;"></div>
+          <div class="aw-text-line" style="width:91%;"></div>
+          <div class="aw-text-line" style="width:72%;"></div>
+        </div>
+        <div class="aw-ai">
+          <div class="aw-ai-hd">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#C96514" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            Sylyx IA
+          </div>
+          <div class="aw-ai-chips">
+            <span class="aw-ai-chip on">Synopsis</span>
+            <span class="aw-ai-chip">Pitch éditeur</span>
+            <span class="aw-ai-chip">Résumé</span>
+            <span class="aw-ai-chip">4e de couv.</span>
+          </div>
+          <div class="aw-ai-msg">Génère un synopsis de ce document.</div>
+          <div class="aw-ai-msg dark">Le phare d'Écume cache un secret que Marie va mettre dix ans à comprendre...</div>
+          <div class="aw-ai-input">Posez une question…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FEATURE 3: OWN — Editor + Book plan ═══ -->
+<div class="feature-split">
+  <div class="split-text">
+    <div class="eyebrow">Own</div>
+    <h2 class="split-h2">Local-first.<br>Always yours.</h2>
+    <p class="split-desc">No cloud, no subscription, no lock-in. Your stories live as plain files on your machine — open them anywhere, keep them forever.</p>
+
+    <div class="details-label">Details</div>
+    <div class="detail-item open" onclick="toggleDetail(this)">
+      <div class="detail-hd">
+        <div class="detail-title">
+          <span class="di-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></span>
+          Files on your machine
+        </div>
+        <span class="detail-toggle">×</span>
+      </div>
+      <div class="detail-body">Everything you write stays on your computer. No server syncs, no cloud dependency — your manuscript is always available, even offline.</div>
+    </div>
+    <div class="detail-item" onclick="toggleDetail(this)">
+      <div class="detail-hd">
+        <div class="detail-title">
+          <span class="di-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          Open source
+        </div>
+        <span class="detail-toggle">+</span>
+      </div>
+      <div class="detail-body">Sylyx is fully open source. Inspect the code, contribute, or fork it. No black boxes between you and your writing.</div>
+    </div>
+    <div class="detail-item" onclick="toggleDetail(this)">
+      <div class="detail-hd">
+        <div class="detail-title">
+          <span class="di-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span>
+          Novel-native structure
+        </div>
+        <span class="detail-toggle">+</span>
+      </div>
+      <div class="detail-body">Chapters, acts, characters, research — everything has a place. A book plan that tracks your word count, one scene at a time.</div>
+    </div>
+  </div>
+
+  <!-- VISUAL: Editor + Plan du livre (from screenshot 5) -->
+  <div class="split-visual">
+    <div class="aw">
+      <div class="aw-bar">
+        <span class="aw-dot aw-r"></span><span class="aw-dot aw-y"></span><span class="aw-dot aw-g"></span>
+        <span class="aw-bar-title">Le village d'Écume &nbsp;·&nbsp; Roman &nbsp;·&nbsp; Ch.2</span>
+      </div>
+      <div class="aw-editor-toolbar">
+        <div class="aw-toolbar-btn" style="font-weight:700;">B</div>
+        <div class="aw-toolbar-btn" style="font-style:italic;">I</div>
+        <div class="aw-toolbar-btn">H₁</div>
+        <div class="aw-toolbar-btn">H₂</div>
+        <div class="aw-toolbar-sep"></div>
+        <div class="aw-toolbar-btn">"</div>
+        <div class="aw-toolbar-btn">≡</div>
+      </div>
+      <div class="aw-layout" style="height:340px;">
+        <div class="aw-sb" style="width:150px;">
+          <div class="aw-sb-label">Espaces</div>
+          <div class="aw-sb-item on"><span class="aw-sb-dot"></span>Mon Roman</div>
+          <div style="padding-left:12px;">
+            <div class="aw-sb-item on" style="font-size:12px;">Le village d'Écume</div>
+            <div class="aw-sb-item" style="font-size:12px;">Recherches</div>
+            <div class="aw-sb-item" style="font-size:12px;">Épilogue</div>
+            <div class="aw-sb-item" style="font-size:12px;">L'ombre du phare</div>
+            <div class="aw-sb-item" style="font-size:12px;">Personnages</div>
+          </div>
+        </div>
+        <div class="aw-editor-area" style="padding: 22px 24px;">
+          <div class="aw-editor-serif">Le village d'Écume</div>
+          <div class="aw-editor-serif" style="font-size:15px; margin-bottom:16px;">Le village d'Écume</div>
+          <div class="aw-text-line" style="width:96%;"></div>
+          <div class="aw-text-line" style="width:90%;"></div>
+          <div class="aw-text-line" style="width:82%;"></div>
+          <div style="height:10px;"></div>
+          <div class="aw-text-line" style="width:88%;"></div>
+          <div class="aw-text-line" style="width:60%;"></div>
+        </div>
+        <!-- Book plan panel -->
+        <div class="aw-book-plan">
+          <div class="aw-bp-title">Plan du livre <span class="aw-bp-close">×</span></div>
+          <div class="aw-bp-project">
+            <div class="aw-bp-project-name">Mon Roman</div>
+            <div class="aw-bp-count">45 / 90 000 mots</div>
+            <div class="aw-bp-bar"><div class="aw-bp-fill" style="width:0.5%;"></div></div>
+            <div class="aw-bp-note">~ environ 89 955 mots restants</div>
+          </div>
+          <div class="aw-bp-chapter">
+            <span class="aw-bp-ch-name" style="color:var(--accent); font-weight:500;">● Le village d'Écume</span>
+            <span class="aw-bp-ch-count">41</span>
+          </div>
+          <div class="aw-bp-chapter" style="opacity:0.5;">
+            <span class="aw-bp-ch-name">+ Ajouter un chapitre</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RESOURCES SECTION ═══ -->
+<div class="feature-split rev" style="border-bottom: 1px solid var(--line);">
+  <div class="split-text">
+    <div class="eyebrow">Research</div>
+    <h2 class="split-h2">Everything in<br>one place.</h2>
+    <p class="split-desc">Books, articles, links, PDFs, sound references — your research library lives right beside your manuscript. Capture it once, find it instantly.</p>
+
+    <div class="details-label">Details</div>
+    <div class="detail-item open" onclick="toggleDetail(this)">
+      <div class="detail-hd">
+        <div class="detail-title">
+          <span class="di-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
+          All resource types
+        </div>
+        <span class="detail-toggle">×</span>
+      </div>
+      <div class="detail-body">Books, articles, web links, PDFs, notes, sound references — every type of research material in one unified library.</div>
+    </div>
+    <div class="detail-item" onclick="toggleDetail(this)">
+      <div class="detail-hd">
+        <div class="detail-title">
+          <span class="di-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+          Quick access
+        </div>
+        <span class="detail-toggle">+</span>
+      </div>
+      <div class="detail-body">Pull up any reference while you write. Your sources are always one click away — no switching apps, no lost tabs.</div>
+    </div>
+  </div>
+
+  <!-- VISUAL: Resources grid (from screenshot 3) -->
+  <div class="split-visual" style="border-left:none; border-right: 1px solid var(--line);">
+    <div class="aw">
+      <div class="aw-bar">
+        <span class="aw-dot aw-r"></span><span class="aw-dot aw-y"></span><span class="aw-dot aw-g"></span>
+        <span class="aw-bar-title">Ressources &nbsp;—&nbsp; 8</span>
+        <span style="margin-left:auto; font-size:12px; background: var(--accent); color:white; padding:3px 10px; border-radius:5px; font-weight:500;">+ Ajouter</span>
+      </div>
+      <div class="aw-layout" style="height:380px;">
+        <div class="aw-sb" style="width:160px;">
+          <div class="aw-sb-label">Sylyx</div>
+          <div class="aw-sb-item">Récents</div>
+          <div class="aw-sb-item on">Ressources</div>
+          <div class="aw-sb-item">Rechercher</div>
+          <div class="aw-sb-label" style="margin-top:10px;">Espaces</div>
+          <div class="aw-sb-item on"><span class="aw-sb-dot"></span>Mon Roman</div>
+        </div>
+        <div class="aw-resources">
+          <div class="aw-res-grid">
+            <div class="aw-res-card">
+              <div class="aw-res-type" style="color:#8A6010;">📚 Book</div>
+              <div class="aw-res-title">On Writing — Stephen King</div>
+              <div class="aw-res-desc">Part memoir, part masterclass. King's rules for writers.</div>
+            </div>
+            <div class="aw-res-card">
+              <div class="aw-res-type" style="color:#5B7EC9;">🔗 Link</div>
+              <div class="aw-res-title">Phare d'Eckmühl — Wikipédia</div>
+              <div class="aw-res-link">fr.wikipedia.org</div>
+              <div class="aw-res-desc">Classé monument historique depuis 1897.</div>
+            </div>
+            <div class="aw-res-card">
+              <div class="aw-res-type" style="color:#5C8A6E;">📰 Article</div>
+              <div class="aw-res-title">Tempêtes en Bretagne — Jean Guichard</div>
+              <div class="aw-res-link">jean-guichard.com</div>
+              <div class="aw-res-desc">Photo iconique du phare de la Jument.</div>
+            </div>
+            <div class="aw-res-card">
+              <div class="aw-res-type" style="color:#7A7268;">⚡ Note</div>
+              <div class="aw-res-title">Vocabulaire maritime</div>
+              <div class="aw-res-desc">Amure, étrave, cabestant, vigie, loch, noroît, suroit, embruns...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PHILOSOPHY ═══ -->
+<div class="philosophy">
+  <blockquote>"Your story shouldn't live on someone else's server."</blockquote>
+  <cite>Sylyx — a writing studio you actually own</cite>
+</div>
+
+<!-- ═══ BOTTOM CTA ═══ -->
+<div class="bottom-cta">
+  <div class="cta-left">
+    <h2>Write deeply.<br><em>Own everything.</em></h2>
+    <p>Join the waitlist — we'll reach out when Sylyx is ready to ship. Open source, always.</p>
+  </div>
+  <div class="cta-right">
+    <form class="wl-form" onsubmit="handleSubmit(event)" style="max-width:100%;">
+      <input type="email" class="wl-input" placeholder="your@email.com" required>
+      <button type="submit" class="wl-btn">Join the waitlist <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </form>
+    <a href="https://github.com/andyslash/sylyx-desktop" target="_blank" class="btn-outline" style="align-self:flex-start;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      Explore the source on GitHub
+    </a>
+    <p style="font-size:12px; color:var(--text-muted);">No spam. Just a heads-up when we ship.</p>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-left">
+    <svg width="20" height="20" viewBox="0 0 34 34" fill="none">
+      <rect width="34" height="34" rx="7" fill="#F5B829"/>
+      <rect x="8" y="11" width="18" height="2.4" rx="1.2" fill="white"/>
+      <rect x="8" y="16" width="14" height="2.4" rx="1.2" fill="white"/>
+      <rect x="8" y="21" width="10" height="2.4" rx="1.2" fill="white"/>
+    </svg>
+    <span class="footer-text">© 2026 Sylyx · Open source</span>
+  </div>
+  <div class="footer-links">
+    <a href="https://github.com/andyslash/sylyx-desktop" target="_blank">GitHub</a>
+    <a href="privacy.html">Privacy &amp; Legal</a>
+  </div>
+</footer>
+
+<script>
+  function toggleDetail(item) {
+    item.classList.toggle('open');
+  }
+  function handleSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const input = form.querySelector('input[type="email"]');
+    const btn = form.querySelector('button');
+    btn.textContent = '✓ You\'re on the list';
+    btn.style.background = '#2D7D46';
+    btn.disabled = true;
+    input.disabled = true;
+    console.log('Waitlist:', input.value);
+    // TODO: wire up to Mailchimp / ConvertKit / Resend
+  }
+</script>
+</body>
+</html>
