@@ -15,6 +15,9 @@
   },
   "homepage": "https://github.com/andyslash/sylyx-landing#readme",
   "description": "",
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "resend": "^6.11.0"
   },
