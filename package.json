@@ -1,0 +1,25 @@
+{
+  "name": "sylyx-landing",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andyslash/sylyx-landing.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andyslash/sylyx-landing/issues"
+  },
+  "homepage": "https://github.com/andyslash/sylyx-landing#readme",
+  "description": "",
+  "dependencies": {
+    "resend": "^6.11.0"
+  },
+  "devDependencies": {
+    "@vercel/node": "^5.7.5",
+    "typescript": "^6.0.2"
+  }
+}
