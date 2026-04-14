@@ -1,9 +1,3 @@
 {
-  "buildCommand": null,
-  "outputDirectory": null,
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "@vercel/node@5"
-    }
-  }
+  "$schema": "https://openapi.vercel.sh/vercel.json"
 }
